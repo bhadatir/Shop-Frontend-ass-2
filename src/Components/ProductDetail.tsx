@@ -1,26 +1,54 @@
-import { Button } from '@material-tailwind/react';
-import React from 'react';
-// whta is type
-interface ProductDetailProps {
+
+import {useCart} from "./CartContext";
+import Productpage from "./ProductPage";
+import {useState,useRef} from "react";
+
+type ProductDetailProps = {
     id: number;
     name: string;
     price: number;
     category: string;
     stock: number;
+    img: string;
 }
 
-const deleteProduct = (id: number) => {
-    const products = JSON.parse(localStorage.getItem('products') || '[]');
-    const updatedProducts = products.filter((product: ProductDetailProps) => product.id !== id);
-    localStorage.setItem('products', JSON.stringify(updatedProducts));
-    window.location.reload();
-};
+const currentTheme = localStorage.getItem('theme');
 
-// arrow fun
-const ProductDetail: React.FC<ProductDetailProps> = ({ id, name, price, category, stock }) => {
+
+function ProductDetail({ id, name, price, category, stock, img }:ProductDetailProps) {
+
+    
+    const [productPage, setProductPage] = useState<number | null>(null);
+    const { addToCart } = useCart();
+    const [haveCoupan, setHaveCoupan] = useState(false);
+
+     function handelProduct(id: number){
+            console.log("Product ID:", id);
+            setProductPage(id);
+        }
+    function handelDiscount(){
+        setHaveCoupan(false);
+        if (price*0.9 > 0) {
+            price = price*0.9;
+        }else{
+            price = price;
+            alert("Price cannot be negative after discount.");
+        }
+    }
+
+    const inputRef = useRef<HTMLInputElement | null>(null);
+
+    const handleFocusInput = () => {
+        if(inputRef.current)
+        inputRef.current.focus();
+        setHaveCoupan(true);
+    };
+
     return (
-        <div className="product-detail p-4 border m-4">
-            <h2>{name}</h2>
+        <>
+        <div className="product-detail p-4 border m-4" >
+            <img src={img} alt={name} key={id} onClick={() => handelProduct(id)}/>
+            <h2 className={currentTheme === 'dark' ? 'text-white bg-gray-400' : 'text-black'}>{name}</h2>
             <p>{category}</p>
             <p>Price: ${price.toFixed(2)}</p>
             <div>
@@ -29,13 +57,29 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ id, name, price, category
                 {stock > 0 && stock < 5 && <div className="text-orange-200 font-bold bg-orange-600 m-1">Limited Quantity</div>}
                 {price > 500 && <div className="text-yellow-200 font-bold bg-yellow-600 m-1">Premium</div>}
             </div>
-            <button onClick={() => deleteProduct(id)} className="mt-0">
-                Delete Product
+            <button
+                onClick={() => addToCart({ id, name, price, quantity: 1 })}
+                disabled={stock === 0}
+                className={"bg-blue-500 text-black"}
+            >
+                Add to Cart
             </button>
-            {/* <button onClick={() => editProduct(id)} className="mt-0">
-                Edit Product
-            </button> */}
+            {!haveCoupan && <a href="#" className="mt-2 flex" onClick={handleFocusInput} >Have a Coupon?</a>}
+
+            {haveCoupan && 
+                <div className="mt-2">
+                    <input ref={inputRef} type="text" placeholder="Enter Coupon Code" className="p-1 w-40"/>
+                    <button className="text-black" onClick={handelDiscount}>Apply</button>
+                </div>
+                }
         </div>
+        {productPage && <div className="fixed inset-0 bg-transparent flex items-center justify-center">
+                <div className="bg-gray-200 p-8 w-196">
+                    <button onClick={() => setProductPage(null)} className="float-right text-gray-600 mb-5">X</button>
+                    <Productpage id={productPage} />
+                </div>
+        </div>}
+        </>
     );
 };
 

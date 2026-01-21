@@ -1,31 +1,40 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import ShopNavbar from './ShopNavbar'
-import ShopSidebar from './ShopSidebar'
 import ProductDetail from './ProductDetail'
+import { useSearch } from '../hooks/useSearch';
+import { useProduct } from '../hooks/useProduct';
+import { useCategories } from '../hooks/useCategories';
+import { useSearchByCat } from '../hooks/useSearchByCat';
 
-function Home() {
 
-    const [searchTerm, setSearchTerm] = useState("");
-    const [filteredProducts, setFilteredProducts] = useState([]);
+export default function Home() {
+
+    const [searchTerm, setSearchTerm] = useState<any>('');
     const [hasSearched, setHasSearched] = useState(false);
+    const [sortBy, setSortBy] = useState<string>('');
 
-    const products = JSON.parse(localStorage.getItem('products') || '[]');  
+    const { products } = useProduct();
+    const { filteredProducts } = useSearch(searchTerm);
+    const { categories } = useCategories();
+    const { filteredProductsByCat } = useSearchByCat(sortBy);
+    console.log("Filtered Products after Search:", filteredProducts);
+    console.log("Filtered Products by Category:", filteredProductsByCat);
 
     function handleSearch() {
         setHasSearched(true);
-        if(searchTerm===""){setFilteredProducts(products); return;}
-        const filtered = products.filter((product: any) => 
-            product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            product.category.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-        setFilteredProducts(filtered);
+        console.log("Search Term:", searchTerm);
+        console.log("Filtered Products after Search:", filteredProducts);
     }
+   
+     const displayedProducts = useMemo(() => {
+        const result = hasSearched ? filteredProducts : (sortBy ? filteredProductsByCat : products);
+        return Array.isArray(result) ? result : [];
+    }, [hasSearched, filteredProducts, sortBy, filteredProductsByCat, products]);
 
     return (
         <div>
-            {window.innerWidth <= 768 ? <ShopSidebar /> : <ShopNavbar />}
-
-            <div className="mt-20 flex p-1 w-full ">
+            <ShopNavbar />
+            <div className="mt-25 ml-10 flex p-1 w-full ">
                 <input
                     type="text"
                     placeholder="Search products..."
@@ -36,53 +45,39 @@ function Home() {
                 <button onClick={handleSearch} className="text-black">
                     Search
                 </button>
+                <div className="ml-4 mr-20">
+                    <select className="p-2 border" onChange={(e) => {
+                        setSortBy(e.target.value);  
+                    }}>
+                        <option value="">All</option>
+                        {categories.map((category: string) => (
+                            <option key={category} value={category}>
+                                {category}
+                            </option>
+                        ))}
+                    </select>
+                </div>
             </div>
 
-            <h3 className="mt-5 font-bold">Products:</h3>
+            <h3 className="mt-5 ml-8 font-bold">Products:</h3>
 
-            { filteredProducts.length < 0 && hasSearched ? (
-                <p>No products found</p>
-            ) : (                
+            {displayedProducts.length > 0 ? (                                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 p-4">
-                    {filteredProducts.map((product: any) => (
+                    {displayedProducts.map((product: any) => (
                         <div className="product-item">
                             <ProductDetail
                                 id={product.id}
-                                name={product.name}
+                                name={product.title}
                                 price={product.price}
                                 category={product.category}
                                 stock={product.stock}
+                                img={product.thumbnail}
                             />
                         </div>
                     ))}
                 </div>
-            )}
-            
-            { !hasSearched && <div>
-                {(() => {
-                    return products.length > 0 ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 p-4">
-                            
-                            {products.map((product: any) => (
-                                <div className="product-item">
-                                    <ProductDetail
-                                        id={product.id}
-                                        name={product.name}
-                                        price={product.price}
-                                        category={product.category}
-                                        stock={product.stock}
-                                    />
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <p>No products found</p>
-                    );
-                })()}
-            </div>}
-
+            ) : (<p>No products found</p>)}
+                    
         </div>
     )
 }
-
-export default Home
