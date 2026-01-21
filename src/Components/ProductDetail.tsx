@@ -1,7 +1,7 @@
 
 import {useCart} from "./CartContext";
 import Productpage from "./ProductPage";
-import {useState,useRef} from "react";
+import {useState,useRef, useEffect} from "react";
 import ReservationTimer from "./ReservationTimer";
 import {useTheme} from "./ThemeContextProvider"
 
@@ -23,20 +23,24 @@ function ProductDetail({ id, name, price, category, stock, img }:ProductDetailPr
 
     const { theme } = useTheme();
 
-     function handelProduct(id: number){
-            console.log("Product ID:", id);
-            setProductPage(id);
+    const inputRef = useRef<HTMLInputElement | null>(null);
+
+    useEffect(() => {
+        if (haveCoupan && inputRef.current) {
+            inputRef.current.focus();
         }
+    }, [haveCoupan]);
+    
+    function handelProduct(id: number){
+        console.log("Product ID:", id);
+        setProductPage(id);
+    }
     function handelDiscount(){
         setHaveCoupan(false);
         setHaveCorrectCoupan(true);
     }
 
-    const inputRef = useRef<HTMLInputElement | null>(null);
-
     const handleFocusInput = () => {
-        if(inputRef.current)
-        inputRef.current.focus();
         setHaveCoupan(true);
     };
 

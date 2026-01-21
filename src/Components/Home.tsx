@@ -6,30 +6,39 @@ import { useProduct } from '../hooks/useProduct';
 import { useCategories } from '../hooks/useCategories';
 import { useSearchByCat } from '../hooks/useSearchByCat';
 
-
 export default function Home() {
 
-    const [searchTerm, setSearchTerm] = useState<any>('');
-    const [hasSearched, setHasSearched] = useState(false);
-    const [sortBy, setSortBy] = useState<string>('');
+    const [searchInput,setSearchInput] = useState('');
+    const [activeSearchTerm, setActiveSearchTerm] = useState('');
+    const [activeCategory, setActiveCategory] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
     const { products } = useProduct();
-    const { filteredProducts } = useSearch(searchTerm);
+    const { filteredProducts } = useSearch(activeSearchTerm);
     const { categories } = useCategories();
-    const { filteredProductsByCat } = useSearchByCat(sortBy);
-    console.log("Filtered Products after Search:", filteredProducts);
-    console.log("Filtered Products by Category:", filteredProductsByCat);
+    const { filteredProductsByCat } = useSearchByCat(activeCategory);
 
-    function handleSearch() {
-        setHasSearched(true);
-        console.log("Search Term:", searchTerm);
-        console.log("Filtered Products after Search:", filteredProducts);
+    function handleSearch(){
+        setActiveSearchTerm(searchInput);
+        setActiveCategory('');
     }
+
+    function handelCenterChange(e: React.ChangeEvent<HTMLInputElement>){
+        const selected = e.target.value;
+        setActiveCategory(selected);
+        setActiveSearchTerm('');
+        setSearchInput('');
+    }
+
+    let contenetToDisplay = [];
    
-     const displayedProducts = useMemo(() => {
-        const result = hasSearched ? filteredProducts : (sortBy ? filteredProductsByCat : products);
-        return Array.isArray(result) ? result : [];
-    }, [hasSearched, filteredProducts, sortBy, filteredProductsByCat, products]);
+    if(activeSearchTerm){
+        contenetToDisplay = filteredProducts;
+    }else if(activeCategory){
+        contenetToDisplay = filteredProductsByCat;
+    }else{
+        contenetToDisplay = products;
+    }
 
     return (
         <div>
@@ -38,17 +47,15 @@ export default function Home() {
                 <input
                     type="text"
                     placeholder="Search products..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
                     className="w-full p-2 mr-4 border"
                 />
                 <button onClick={handleSearch} className="text-black">
                     Search
                 </button>
                 <div className="ml-4 mr-20">
-                    <select className="p-2 border" onChange={(e) => {
-                        setSortBy(e.target.value);  
-                    }}>
+                    <select className="p-2 border" onChange={handelCenterChange} value={activeCategory}>
                         <option value="">All</option>
                         {categories.map((category: string) => (
                             <option key={category} value={category}>
@@ -59,12 +66,14 @@ export default function Home() {
                 </div>
             </div>
 
-            <h3 className="mt-5 ml-8 font-bold">Products:</h3>
+            <h3 className="mt-5 ml-8 font-bold">
+            {activeSearchTerm ? `Results for "${activeSearchTerm}"` : activeCategory ? `Category: "${activeCategory}"` : 'All Products'}
+            </h3>  
 
-            {displayedProducts.length > 0 ? (                                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 p-4">
-                    {displayedProducts.map((product: any) => (
-                        <div className="product-item">
+                {contenetToDisplay && contenetToDisplay.length > 0 ? (                  
+                    contenetToDisplay.map((product: any) => (
+                        <div className="product-item" key={product.id}>
                             <ProductDetail
                                 id={product.id}
                                 name={product.title}
@@ -74,10 +83,10 @@ export default function Home() {
                                 img={product.thumbnail}
                             />
                         </div>
-                    ))}
+                    ))
+                ) : (<p>No products found</p>
+                )}
                 </div>
-            ) : (<p>No products found</p>)}
-                    
         </div>
-    )
+    );
 }

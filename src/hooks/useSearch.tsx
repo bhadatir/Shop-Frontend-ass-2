@@ -1,13 +1,19 @@
 import {useState,useEffect} from "react";
+import { set } from "react-hook-form";
 
 export function useSearch(products: string){
 
-    const [filteredProducts, setFilteredProducts] = useState(products);
-    const [loading, setLoading] = useState(true);
+    const [filteredProducts, setFilteredProducts] = useState([]);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-            fetch('https://dummyjson.com/products/search?q='+ products)
+        if(!products){
+            setFilteredProducts([]);
+            return;
+        }
+        setLoading(true);
+            fetch(`https://dummyjson.com/products/search?q=${products}`)
             .then((res)=>{
                 if(!res.ok)
                 {
@@ -23,7 +29,7 @@ export function useSearch(products: string){
                 setError(error.message);
                 setLoading(false);
             });
-        }, []);
+        }, [products]);
 
     return { filteredProducts, loading, error };
 }

@@ -3,10 +3,15 @@ import {useState,useEffect} from "react";
 export function useSearchByCat(category: string){
 
     const [filteredProductsByCat, setCategories] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
     useEffect(() => {
+        if(!category){
+            setCategories([]);
+            return;
+        }
+        setLoading(true);
             fetch(`https://dummyjson.com/products/category/${category}`)
             .then((res)=>{
                 if(!res.ok)
@@ -23,7 +28,7 @@ export function useSearchByCat(category: string){
                 setError(error.message);
                 setLoading(false);
             });
-        }, []);
+        }, [category]);
 
     return { filteredProductsByCat, loading, error };
 }
