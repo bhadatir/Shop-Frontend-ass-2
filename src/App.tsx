@@ -1,5 +1,6 @@
 import { CartProvider, useCart } from "./Components/CartContext";
 import Home from "./Components/Home";
+import { ThemeContextProvider } from "./Components/ThemeContextProvider";
 
 const Product = () => {
   const { addToCart } = useCart();
@@ -26,9 +27,11 @@ const Cart = () => {
 
 export default function App() {
   return (
-    <CartProvider>
-      <Home />
-    </CartProvider>
+    <ThemeContextProvider>
+      <CartProvider>
+        <Home />
+      </CartProvider>
+    </ThemeContextProvider>
   );
 }
 

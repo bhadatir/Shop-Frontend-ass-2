@@ -1,28 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {useCart} from "./CartContext"
+import {useTheme} from "./ThemeContextProvider"
 
 function ShopNavbar() {
 
     const [showCart, setShowCart] = useState(false);
-
     const { cart, totalItems, removeFromCart } = useCart();
-
-    const currentTheme = localStorage.getItem('theme');
-
-    // useEffect(() => {
-    //     currentTheme = localStorage.getItem('theme') || 'light';
-    // }, [localStorage.getItem('theme')]);
-
-    function toggleTheme() {
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        localStorage.setItem('theme', newTheme);
-    }
+    const { theme, toggleTheme } = useTheme();
 
     return (
         <>
         <nav className="bg-gray-800 p-4 fixed top-0 left-0 w-full">
             <div className="flex justify-between ">
-            <div className={ `font-bold text-[25px] ${currentTheme === 'dark' ? 'text-white' : 'text-black'}` }>Vendor Portal</div>
+            <div className={ `font-bold text-[25px] ${theme === 'dark' ? 'text-white' : 'text-black'}` }>Vendor Portal</div>
             <div className="space-x-4">
                 <button onClick={() => setShowCart(true)} className="text-black">View Cart</button>
                 <button onClick={toggleTheme} className="text-black">

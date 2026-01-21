@@ -3,6 +3,7 @@ import {useCart} from "./CartContext";
 import Productpage from "./ProductPage";
 import {useState,useRef} from "react";
 import ReservationTimer from "./ReservationTimer";
+import {useTheme} from "./ThemeContextProvider"
 
 type ProductDetailProps = {
     id: number;
@@ -13,17 +14,14 @@ type ProductDetailProps = {
     img: string;
 }
 
-const currentTheme = localStorage.getItem('theme');
-
-
-function ProductDetail({ id, name, price, category, stock, img }:ProductDetailProps) {
-
-    
+function ProductDetail({ id, name, price, category, stock, img }:ProductDetailProps) {    
     const [productPage, setProductPage] = useState<number | null>(null);
     const { addToCart } = useCart();
     const [haveCoupan, setHaveCoupan] = useState(false);
     const [haveCorrectCoupan, setHaveCorrectCoupan] = useState(false);
     const [reserve, setReserve] = useState(false);
+
+    const { theme } = useTheme();
 
      function handelProduct(id: number){
             console.log("Product ID:", id);
@@ -46,7 +44,7 @@ function ProductDetail({ id, name, price, category, stock, img }:ProductDetailPr
         <>
         <div className="product-detail p-4 border m-4" >
             <img src={img} alt={name} key={id} onClick={() => handelProduct(id)}/>
-            <h2 className={currentTheme === 'dark' ? 'text-white bg-gray-400' : 'text-black'}>{name}</h2>
+            <h2 className={theme === 'dark' ? 'text-white bg-gray-400' : 'text-black'}>{name}</h2>
             <p>{category}</p>
             { !haveCorrectCoupan ? <p>Price: ${price.toFixed(2)}</p> : <p>Price: ${(price * 0.9).toFixed(2)} (10% off applied)</p>}
             <div>
