@@ -2,6 +2,7 @@
 import {useCart} from "./CartContext";
 import Productpage from "./ProductPage";
 import {useState,useRef} from "react";
+import ReservationTimer from "./ReservationTimer";
 
 type ProductDetailProps = {
     id: number;
@@ -21,6 +22,8 @@ function ProductDetail({ id, name, price, category, stock, img }:ProductDetailPr
     const [productPage, setProductPage] = useState<number | null>(null);
     const { addToCart } = useCart();
     const [haveCoupan, setHaveCoupan] = useState(false);
+    const [haveCorrectCoupan, setHaveCorrectCoupan] = useState(false);
+    const [reserve, setReserve] = useState(false);
 
      function handelProduct(id: number){
             console.log("Product ID:", id);
@@ -28,12 +31,7 @@ function ProductDetail({ id, name, price, category, stock, img }:ProductDetailPr
         }
     function handelDiscount(){
         setHaveCoupan(false);
-        if (price*0.9 > 0) {
-            price = price*0.9;
-        }else{
-            price = price;
-            alert("Price cannot be negative after discount.");
-        }
+        setHaveCorrectCoupan(true);
     }
 
     const inputRef = useRef<HTMLInputElement | null>(null);
@@ -50,9 +48,9 @@ function ProductDetail({ id, name, price, category, stock, img }:ProductDetailPr
             <img src={img} alt={name} key={id} onClick={() => handelProduct(id)}/>
             <h2 className={currentTheme === 'dark' ? 'text-white bg-gray-400' : 'text-black'}>{name}</h2>
             <p>{category}</p>
-            <p>Price: ${price.toFixed(2)}</p>
+            { !haveCorrectCoupan ? <p>Price: ${price.toFixed(2)}</p> : <p>Price: ${(price * 0.9).toFixed(2)} (10% off applied)</p>}
             <div>
-                {stock > 0 && <p>{`Stock: ${stock} available`}</p>}
+                {!reserve ? <p>{`Stock: ${stock} available`}</p> : <p>{`Stock: ${stock - 1} available (1 item reserved)`}</p>}
                 {stock === 0 && <div className="text-red-200 font-bold bg-red-600 m-1">Out of Stock</div>}
                 {stock > 0 && stock < 5 && <div className="text-orange-200 font-bold bg-orange-600 m-1">Limited Quantity</div>}
                 {price > 500 && <div className="text-yellow-200 font-bold bg-yellow-600 m-1">Premium</div>}
@@ -71,7 +69,10 @@ function ProductDetail({ id, name, price, category, stock, img }:ProductDetailPr
                     <input ref={inputRef} type="text" placeholder="Enter Coupon Code" className="p-1 w-40"/>
                     <button className="text-black" onClick={handelDiscount}>Apply</button>
                 </div>
-                }
+            } 
+            {!reserve && <button className="text-black" onClick={() => setReserve(true)}>Reserve</button>}
+            {reserve && <ReservationTimer />}
+
         </div>
         {productPage && <div className="fixed inset-0 bg-transparent flex items-center justify-center">
                 <div className="bg-gray-200 p-8 w-196">
