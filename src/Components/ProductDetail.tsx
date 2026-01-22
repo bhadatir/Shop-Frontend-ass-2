@@ -1,4 +1,3 @@
-
 import {useCart} from "./CartContext";
 import Productpage from "./ProductPage";
 import {useState,useRef, useEffect} from "react";
@@ -16,12 +15,12 @@ type ProductDetailProps = {
 
 function ProductDetail({ id, name, price, category, stock, img }:ProductDetailProps) {    
     const [productPage, setProductPage] = useState<number | null>(null);
-    const { addToCart } = useCart();
     const [haveCoupan, setHaveCoupan] = useState(false);
     const [haveCorrectCoupan, setHaveCorrectCoupan] = useState(false);
     const [reserve, setReserve] = useState(false);
 
     const { theme } = useTheme();
+    const { addToCart } = useCart();
 
     const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -40,7 +39,7 @@ function ProductDetail({ id, name, price, category, stock, img }:ProductDetailPr
         setHaveCorrectCoupan(true);
     }
 
-    const handleFocusInput = () => {
+    function handleFocusInput(){
         setHaveCoupan(true);
     };
 
