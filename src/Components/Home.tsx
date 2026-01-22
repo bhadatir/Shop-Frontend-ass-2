@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import ShopNavbar from './ShopNavbar'
 import ProductDetail from './ProductDetail'
 import { useSearch } from '../hooks/useSearch';
@@ -11,7 +11,7 @@ export default function Home() {
     const [searchInput,setSearchInput] = useState('');
     const [activeSearchTerm, setActiveSearchTerm] = useState('');
     const [activeCategory, setActiveCategory] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
+    // const [isLoading, setIsLoading] = useState(false);
 
     const { products } = useProduct();
     const { filteredProducts } = useSearch(activeSearchTerm);
@@ -23,7 +23,7 @@ export default function Home() {
         setActiveCategory('');
     }
 
-    function handelCenterChange(e: React.ChangeEvent<HTMLInputElement>){
+    function handelCenterChange(e: React.ChangeEvent<HTMLSelectElement>){
         const selected = e.target.value;
         setActiveCategory(selected);
         setActiveSearchTerm('');

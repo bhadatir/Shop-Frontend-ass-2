@@ -14,7 +14,7 @@ function ReservationTimer(){
     return () => clearInterval(timerId);
   }, [timeLeft]);
 
-  const formatTime = (seconds: number): string => {
+  function formatTime(seconds: number): string {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
@@ -23,9 +23,9 @@ function ReservationTimer(){
   return (
     <div className="text-black">
       {timeLeft > 0 ? (
-        <div>⏳ Reservation Time Left: {formatTime(timeLeft)}</div>
+        <div> Reservation Time Left: {formatTime(timeLeft)}</div>
       ) : (
-        <div className="text-red">❌ Reservation Expired</div>
+        <div className="text-red">Reservation Expired</div>
       )}
     </div>
   );

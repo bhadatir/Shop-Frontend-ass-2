@@ -1,12 +1,13 @@
 import { createContext, useContext } from 'react';
 import { useState } from 'react';
 
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
-
 type ThemeContextType = {
     theme: string;
     toggleTheme: () => void;
 };
+
+
+const ThemeContext = createContext<ThemeContextType | null>(null);
 
 export function ThemeContextProvider({children}:{children: React.ReactNode}) {
 
@@ -29,7 +30,7 @@ export function ThemeContextProvider({children}:{children: React.ReactNode}) {
 
 export function useTheme(){
     const context = useContext(ThemeContext);
-    if (context === undefined) {
+    if (!context) {
         throw new Error("useTheme must be used within a ThemeContextProvider");
     }
     return context;
